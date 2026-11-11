@@ -1,0 +1,168 @@
+services:
+
+  # -----------------------------------------------
+  # PROMETHEUS
+  # -----------------------------------------------
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: python-prometheus
+    restart: unless-stopped
+
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --web.enable-lifecycle
+
+    ports:
+      - "127.0.0.1:9090:9090"
+
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+
+    networks:
+      - monitoring
+
+  # -----------------------------------------------
+  # LOKI
+  # -----------------------------------------------
+
+  loki:
+    image: grafana/loki:3.5.0
+    container_name: python-loki
+    restart: unless-stopped
+
+    command:
+      - -config.file=/etc/loki/loki.yml
+
+    ports:
+      - "127.0.0.1:3100:3100"
+
+    volumes:
+      - ./monitoring/loki.yml:/etc/loki/loki.yml:ro
+      - loki_data:/loki
+
+    networks:
+      - monitoring
+
+  # -----------------------------------------------
+  # GRAFANA ALLOY
+  # -----------------------------------------------
+
+  alloy:
+    image: grafana/alloy:v1.10.2
+    container_name: python-alloy
+    restart: unless-stopped
+
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - /etc/alloy/config.alloy
+
+    expose:
+      - "12345"
+
+    volumes:
+      - ./monitoring/alloy.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - alloy_data:/var/lib/alloy
+
+    depends_on:
+      - loki
+
+    networks:
+      - monitoring
+
+  # -----------------------------------------------
+  # NODE EXPORTER
+  # -----------------------------------------------
+
+  node-exporter:
+    image: prom/node-exporter:v1.9.1
+    container_name: python-node-exporter
+    restart: unless-stopped
+
+    command:
+      - --path.rootfs=/host
+
+    pid: host
+
+    volumes:
+      - /:/host:ro,rslave
+
+    networks:
+      - monitoring
+
+  # -----------------------------------------------
+  # CADVISOR
+  # -----------------------------------------------
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.52.1
+    container_name: python-cadvisor
+    restart: unless-stopped
+
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+
+    networks:
+      - monitoring
+
+  # -----------------------------------------------
+  # GRAFANA
+  # -----------------------------------------------
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    container_name: python-grafana
+    restart: unless-stopped
+
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+
+    ports:
+      - "127.0.0.1:3000:3000"
+
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./monitoring/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+
+      - ./monitoring/dashboards:/var/lib/grafana/dashboards:ro
+
+    depends_on:
+      - prometheus
+      - loki
+
+    networks:
+      - monitoring
+
+# -----------------------------------------------
+# PERSISTENT VOLUMES
+# -----------------------------------------------
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+  alloy_data:
+
+    # -----------------------------------------------
+    # NETWORK
+    # -----------------------------------------------
+
+networks:
+  monitoring:
+    name: python-app-monitoring
+    driver: bridge

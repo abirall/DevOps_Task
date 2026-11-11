@@ -1,0 +1,129 @@
+{
+    "id": null,
+    "uid": "python-app-dashboard",
+    "title": "Python Application Dashboard",
+    "tags": [
+        "python",
+        "flask",
+        "application"
+    ],
+    "timezone": "browser",
+    "schemaVersion": 39,
+    "version": 1,
+    "refresh": "10s",
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "panels": [
+        {
+            "id": 1,
+            "title": "Application Availability",
+            "type": "stat",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 0,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "expr": "count by (name) (container_last_seen{name=~\".*system-health-app.*\"})",
+                    "legendFormat": "Application",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "title": "Container CPU Usage",
+            "type": "timeseries",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 6,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{name=~\".*system-health-app.*\"}[5m])) * 100",
+                    "legendFormat": "{{name}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "title": "Container Memory",
+            "type": "timeseries",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 8
+            },
+            "targets": [
+                {
+                    "expr": "container_memory_working_set_bytes{name=~\".*system-health-app.*\"}",
+                    "legendFormat": "{{name}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "title": "Container Network Receive",
+            "type": "timeseries",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 8
+            },
+            "targets": [
+                {
+                    "expr": "sum by (name) (rate(container_network_receive_bytes_total{name=~\".*system-health-app.*\"}[5m]))",
+                    "legendFormat": "{{name}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "title": "Application Logs",
+            "type": "logs",
+            "datasource": {
+                "type": "loki",
+                "uid": "loki"
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 16
+            },
+            "targets": [
+                {
+                    "expr": "{service=\"docker\"}",
+                    "refId": "A"
+                }
+            ]
+        }
+    ]
+}

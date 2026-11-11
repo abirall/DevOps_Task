@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern System Health Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #1a2a6c;
+            --secondary-bg: #b21f1f;
+            --tertiary-bg: #fdbb2d;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --card-border: rgba(255, 255, 255, 0.15);
+            --text-color: #e0e0e0;
+            --highlight-color: #4CAF50; /* Green for healthy */
+            --warning-color: #FFC107; /* Orange for warning */
+            --danger-color: #F44336; /* Red for critical */
+            --shadow-light: rgba(0, 0, 0, 0.2);
+            --shadow-medium: rgba(0, 0, 0, 0.4);
+            --shadow-strong: rgba(0, 0, 0, 0.6);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 50%, var(--tertiary-bg) 100%);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            color: var(--text-color);
+            text-align: center;
+            padding: 40px 20px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            font-size: 3.2em;
+            margin-bottom: 50px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-shadow: 0 4px 15px var(--shadow-medium);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            width: 280px;
+            padding: 25px;
+            box-shadow: 0 10px 30px var(--shadow-medium);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            animation: cardBorderFlow 4s infinite linear;
+            opacity: 0.7;
+            transform: translateX(-100%);
+        }
+
+        .card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 18px 45px var(--shadow-strong);
+        }
+
+        .card h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            color: #fff;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .metric-value {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .icon {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        /* Specific card styling with icons and dynamic colors */
+        .cpu h2 { color: var(--danger-color); }
+        .cpu .metric-value { color: var(--danger-color); }
+        .memory h2 { color: var(--warning-color); }
+        .memory .metric-value { color: var(--warning-color); }
+        .disk h2 { color: var(--highlight-color); }
+        .disk .metric-value { color: var(--highlight-color); }
+        .system h2 { color: #8C9EFF; } /* Lighter blue */
+        .system .metric-value { font-size: 1.8em; margin: 10px 0; }
+        .system p { font-size: 1.1em; margin: 8px 0; line-height: 1.4; opacity: 0.9; }
+
+        .footer {
+            margin-top: 60px;
+            font-size: 0.95em;
+            color: rgba(255,255,255,0.6);
+            animation: fadeInUp 1s ease-out 0.5s backwards;
+        }
+
+        /* Keyframe Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes cardBorderFlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+                margin-bottom: 40px;
+            }
+            .card {
+                width: 90%; /* Make cards wider on smaller screens */
+                max-width: 350px;
+            }
+            .metric-value {
+                font-size: 2.2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2em;
+            }
+            body {
+                padding: 20px 10px;
+            }
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <h1><i class="fas fa-server"></i> Modern System Health Monitor</h1>
+    <div class="container">
+        <div class="card cpu">
+            <h2><i class="fas fa-microchip icon"></i>CPU Usage</h2>
+            <div class="metric-value" id="cpu-usage">{{ info.cpu_usage }}%</div>
+            <div class="metric-label">Current CPU Load</div>
+        </div>
+        <div class="card memory">
+            <h2><i class="fas fa-memory icon"></i>Memory Usage</h2>
+            <div class="metric-value" id="memory-usage">{{ info.memory_usage }}%</div>
+            <div class="metric-label">RAM Consumption</div>
+        </div>
+        <div class="card disk">
+            <h2><i class="fas fa-hdd icon"></i>Disk Usage</h2>
+            <div class="metric-value" id="disk-usage">{{ info.disk_usage }}%</div>
+            <div class="metric-label">Storage Occupied</div>
+        </div>
+        <div class="card system">
+            <h2><i class="fas fa-info-circle icon"></i>System Info</h2>
+            <p><i class="fas fa-desktop"></i> {{ info.platform }} ({{ info.architecture }})</p>
+            <p><i class="fas fa-code-branch"></i> {{ info.platform_version }}</p>
+            <p><i class="fas fa-clock"></i> <span id="current-time">{{ info.time }}</span></p>
+            <div class="metric-label">Operating System & Time</div>
+        </div>
+    </div>
+    <div class="footer">
+        &copy; <span id="footer-year">{{ info.time.split(' ')[0] }}</span> Modern System Monitor
+    </div>
+
+    <script>
+        // Optional: Client-side JavaScript to dynamically update colors based on thresholds
+        function updateMetricColor(elementId, value, warningThreshold, dangerThreshold) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.style.color = 'var(--highlight-color)'; // Default healthy
+                if (value >= dangerThreshold) {
+                    element.style.color = 'var(--danger-color)';
+                } else if (value >= warningThreshold) {
+                    element.style.color = 'var(--warning-color)';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Assuming your `info` object is available (e.g., passed from Flask/Jinja2)
+            // You would likely get real-time data via WebSockets or AJAX for a live monitor
+
+            // Example static update based on initial load
+            const cpuUsage = parseFloat("{{ info.cpu_usage }}");
+            const memoryUsage = parseFloat("{{ info.memory_usage }}");
+            const diskUsage = parseFloat("{{ info.disk_usage }}");
+
+            updateMetricColor('cpu-usage', cpuUsage, 70, 90);
+            updateMetricColor('memory-usage', memoryUsage, 60, 85);
+            updateMetricColor('disk-usage', diskUsage, 80, 95);
+
+            // Update footer year if needed (assuming info.time gives current year)
+            const currentTimeParts = "{{ info.time }}".split(' ');
+            if (currentTimeParts.length > 0) {
+                document.getElementById('footer-year').textContent = currentTimeParts[0];
+            }
+
+             // Auto-update time (for demonstration, real data would come from backend)
+             function updateClock() {
+                const now = new Date();
+                const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                document.getElementById('current-time').textContent = now.toLocaleString('en-US', options);
+            }
+            setInterval(updateClock, 1000);
+            updateClock(); // Initial call
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+
+# ShellCheck configuration
+
+shell=bash
+
+enable=all
+
+external-sources=true
+
+severity=style

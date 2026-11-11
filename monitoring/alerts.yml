@@ -1,0 +1,58 @@
+
+groups:
+  - name: infrastructure-alerts
+    rules:
+
+      - alert: NodeExporterDown
+        expr: up{job="node-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Node Exporter is down
+          description: "Host metrics are unavailable."
+
+      - alert: ContainerMetricsDown
+        expr: up{job="cadvisor"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: cAdvisor is down
+          description: "Container metrics are unavailable."
+
+      - alert: HighCPUUsage
+        expr: 100 * (1 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High CPU usage
+          description: "Host CPU usage has exceeded 80% for 5 minutes."
+
+      - alert: HighMemoryUsage
+        expr: 100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage
+          description: "Host memory usage has exceeded 85% for 5 minutes."
+
+      - alert: LowDiskSpace
+        expr: 100 * node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay"} < 15
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Low disk space
+          description: "Root filesystem has less than 15% available space."
+
+      - alert: HighContainerCPU
+        expr: rate(container_cpu_usage_seconds_total{name!=""}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High container CPU usage
+          description: "A container is using more than 80% of one CPU core."

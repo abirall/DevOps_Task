@@ -1,0 +1,17 @@
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: python-app
+  labels:
+    app.kubernetes.io/name: python-app
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: python-app-config
+  namespace: python-app
+data:
+  # Add non-secret environment settings here as needed.
+  ENVIRONMENT: "staging"

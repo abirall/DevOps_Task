@@ -1,0 +1,21 @@
+
+failure-threshold: warning
+
+format: tty
+
+ignored:
+  - DL3008
+  - DL3013
+
+trustedRegistries:
+  - docker.io
+  - ghcr.io
+  - public.ecr.aws
+  - gcr.io
+  - registry.k8s.io
+
+override:
+  error: []
+  warning: []
+  info: []
+  style: []

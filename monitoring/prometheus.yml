@@ -1,0 +1,30 @@
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    project: python-devops-task
+    environment: staging
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+scrape_configs:
+
+  # Prometheus itself
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - prometheus:9090
+
+  # Linux host metrics
+  - job_name: node-exporter
+    static_configs:
+      - targets:
+          - node-exporter:9100
+
+  # Docker container metrics
+  - job_name: cadvisor
+    static_configs:
+      - targets:
+          - cadvisor:8080

@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Lint Dockerfile') {
+            steps {
+                sh 'hadolint Dockerfile'
+            }
+        }
+
+        stage('Scan filesystem') {
+            steps {
+                sh 'trivy fs --exit-code 1 --ignore-unfixed --severity HIGH,CRITICAL --no-progress .'
+            }
+        }
+
+        stage('Build and start') {
+            when { branch 'main' }
+            steps {
+                sh 'docker compose up -d --build'
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker compose ps --all || true'
+        }
+    }
+}

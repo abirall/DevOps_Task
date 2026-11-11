@@ -1,0 +1,15 @@
+services:
+  system-health-app:
+    networks:
+      - default
+      - monitoring
+
+  prometheus:
+    networks:
+      - default
+      - monitoring
+
+networks:
+  monitoring:
+    name: python-app-monitoring
+    driver: bridge
